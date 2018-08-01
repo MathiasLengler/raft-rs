@@ -83,11 +83,15 @@ pub trait Storage {
 
 /// The Memory Storage Core instance holds the actual state of the storage struct. To access this
 /// value, use the `rl` and `wl` functions on the main MemStorage implementation.
+#[derive(Serialize)]
 pub struct MemStorageCore {
+    #[serde(skip_serializing)]
     hard_state: HardState,
+    #[serde(skip_serializing)]
     snapshot: Snapshot,
     // TODO: maybe vec_deque
     // entries[i] has raft log position i+snapshot.get_metadata().get_index()
+    #[serde(skip_serializing)]
     entries: Vec<Entry>,
 }
 
@@ -227,7 +231,7 @@ impl MemStorageCore {
 
 /// `MemStorage` is a thread-safe implementation of Storage trait.
 /// It is mainly used for test purpose.
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Serialize)]
 pub struct MemStorage {
     core: Arc<RwLock<MemStorageCore>>,
 }

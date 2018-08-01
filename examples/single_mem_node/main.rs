@@ -13,6 +13,12 @@
 
 extern crate raft;
 
+extern crate simplelog;
+#[macro_use]
+extern crate log;
+
+extern crate serde_json;
+
 use std::collections::HashMap;
 use std::sync::mpsc::{self, RecvTimeoutError};
 use std::thread;
@@ -20,6 +26,8 @@ use std::time::{Duration, Instant};
 
 use raft::prelude::*;
 use raft::storage::MemStorage;
+use simplelog::{TermLogger, Config as LogConfig};
+use log::LevelFilter;
 
 type ProposeCallback = Box<Fn() + Send>;
 
@@ -34,8 +42,14 @@ enum Msg {
     Raft(Message),
 }
 
+fn init_log() {
+    TermLogger::init(LevelFilter::Debug, LogConfig::default()).unwrap();
+}
+
 // A simple example about how to use the Raft library in Rust.
 fn main() {
+    init_log();
+
     // Create a storage for Raft, and here we just use a simple memory storage.
     // You need to build your own persistent storage in your production.
     // Please check the Storage trait in src/storage.rs to see how to implement one.
@@ -85,6 +99,7 @@ fn main() {
     let mut cbs = HashMap::new();
 
     loop {
+
         match receiver.recv_timeout(timeout) {
             Ok(Msg::Propose { id, cb }) => {
                 cbs.insert(id, cb);
@@ -110,6 +125,8 @@ fn main() {
 }
 
 fn on_ready(r: &mut RawNode<MemStorage>, cbs: &mut HashMap<u8, ProposeCallback>) {
+//    debug!("Node:\n{}", serde_json::to_string_pretty(&r).unwrap());
+
     if !r.has_ready() {
         return;
     }
@@ -121,8 +138,9 @@ fn on_ready(r: &mut RawNode<MemStorage>, cbs: &mut HashMap<u8, ProposeCallback>)
     if is_leader {
         // If the peer is leader, the leader can send messages to other followers ASAP.
         let msgs = ready.messages.drain(..);
-        for _msg in msgs {
+        for msg in msgs {
             // Here we only have one peer, so can ignore this.
+            info!("Leader send message: {:?}", msg)
         }
     }
 
@@ -148,14 +166,18 @@ fn on_ready(r: &mut RawNode<MemStorage>, cbs: &mut HashMap<u8, ProposeCallback>)
         // If not leader, the follower needs to reply the messages to
         // the leader after appending Raft entries.
         let msgs = ready.messages.drain(..);
-        for _msg in msgs {
+        for msg in msgs {
             // Send messages to other peers.
+            info!("Follower send message: {:?}", msg)
         }
     }
 
     if let Some(committed_entries) = ready.committed_entries.take() {
         let mut _last_apply_index = 0;
         for entry in committed_entries {
+
+            let entry: Entry = entry;
+
             // Mostly, you need to save the last apply index to resume applying
             // after restart. Here we just ignore this because we use a Memory storage.
             _last_apply_index = entry.get_index();

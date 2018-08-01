@@ -37,7 +37,7 @@ use util;
 pub use util::NO_LIMIT;
 
 /// Raft log implementation
-#[derive(Default)]
+#[derive(Default, Serialize, SerDebug)]
 pub struct RaftLog<T: Storage> {
     /// Contains all stable entries since the last snapshot.
     pub store: T,

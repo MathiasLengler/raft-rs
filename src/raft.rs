@@ -49,7 +49,7 @@ const CAMPAIGN_ELECTION: &[u8] = b"CampaignElection";
 const CAMPAIGN_TRANSFER: &[u8] = b"CampaignTransfer";
 
 /// The role of the node.
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(PartialEq, Clone, Copy, Serialize, SerDebug)]
 pub enum StateRole {
     /// The node is a follower of the leader.
     Follower,
@@ -74,7 +74,7 @@ pub const INVALID_INDEX: u64 = 0;
 
 /// SoftState provides state that is useful for logging and debugging.
 /// The state is volatile and does not need to be persisted to the WAL.
-#[derive(Default, PartialEq, Debug)]
+#[derive(Default, PartialEq, Serialize, SerDebug)]
 pub struct SoftState {
     /// The potential leader of the cluster.
     pub leader_id: u64,
@@ -84,7 +84,7 @@ pub struct SoftState {
 
 /// A struct that represents the raft consensus itself. Stores details concerning the current
 /// and possible state the system can take.
-#[derive(Default)]
+#[derive(Default, Serialize, SerDebug)]
 pub struct Raft<T: Storage> {
     /// The current election term.
     pub term: u64,
@@ -124,6 +124,7 @@ pub struct Raft<T: Storage> {
     pub votes: FxHashMap<u64, bool>,
 
     /// The list of messages.
+    #[serde(skip_serializing)]
     pub msgs: Vec<Message>,
 
     /// The leader id

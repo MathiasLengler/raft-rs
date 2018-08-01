@@ -31,7 +31,7 @@ use std::cmp;
 use std::collections::hash_map::HashMap;
 
 /// The state of the progress.
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(PartialEq, Clone, Copy, Serialize, SerDebug)]
 pub enum ProgressState {
     /// Whether it's probing.
     Probe,
@@ -49,7 +49,7 @@ impl Default for ProgressState {
 
 /// `ProgressSet` contains several `Progress`es,
 /// which could be `Leader`, `Follower` and `Learner`.
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Serialize, SerDebug)]
 pub struct ProgressSet {
     voters: FxHashMap<u64, Progress>,
     learners: FxHashMap<u64, Progress>,
@@ -164,7 +164,7 @@ impl ProgressSet {
 }
 
 /// The progress of catching up from a restart.
-#[derive(Debug, Default, Clone)]
+#[derive(Default, Clone, Serialize, SerDebug)]
 pub struct Progress {
     /// How much state is matched.
     pub matched: u64,
@@ -323,7 +323,7 @@ impl Progress {
 }
 
 /// A buffer of inflight messages.
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Default, Clone, PartialEq, Serialize, SerDebug)]
 pub struct Inflights {
     // the starting index in the buffer
     start: usize,

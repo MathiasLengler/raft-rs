@@ -33,12 +33,14 @@ use eraftpb::{Entry, Snapshot};
 /// Note that unstable.offset may be less than the highest log
 /// position in storage; this means that the next write to storage
 /// might need to truncate the log before persisting unstable.entries.
-#[derive(Debug, PartialEq, Default)]
+#[derive(Debug, PartialEq, Default, Serialize)]
 pub struct Unstable {
     /// The incoming unstable snapshot, if any.
+    #[serde(skip_serializing)]
     pub snapshot: Option<Snapshot>,
 
     /// All entries that have not yet been written to storage.
+    #[serde(skip_serializing)]
     pub entries: Vec<Entry>,
 
     /// The offset from the vector index.

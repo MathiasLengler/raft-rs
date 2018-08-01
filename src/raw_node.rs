@@ -94,7 +94,7 @@ pub fn is_empty_snap(s: &Snapshot) -> bool {
 /// Ready encapsulates the entries and messages that are ready to read,
 /// be saved to stable storage, committed or sent to other peers.
 /// All fields in Ready are read-only.
-#[derive(Default, Debug, PartialEq)]
+#[derive(Default, PartialEq, Serialize, SerDebug)]
 pub struct Ready {
     /// The current volatile state of a Node.
     /// SoftState will be nil if there is no update.
@@ -104,6 +104,7 @@ pub struct Ready {
     /// The current state of a Node to be saved to stable storage BEFORE
     /// Messages are sent.
     /// HardState will be equal to empty state if there is no update.
+    #[serde(skip_serializing)]
     pub hs: Option<HardState>,
 
     /// States can be used for node to serve linearizable read requests locally
@@ -114,20 +115,24 @@ pub struct Ready {
 
     /// Entries specifies entries to be saved to stable storage BEFORE
     /// Messages are sent.
+    #[serde(skip_serializing)]
     pub entries: Vec<Entry>,
 
     /// Snapshot specifies the snapshot to be saved to stable storage.
+    #[serde(skip_serializing)]
     pub snapshot: Snapshot,
 
     /// CommittedEntries specifies entries to be committed to a
     /// store/state-machine. These have previously been committed to stable
     /// store.
+    #[serde(skip_serializing)]
     pub committed_entries: Option<Vec<Entry>>,
 
     /// Messages specifies outbound messages to be sent AFTER Entries are
     /// committed to stable storage.
     /// If it contains a MsgSnap message, the application MUST report back to raft
     /// when the snapshot has been received or has failed by calling ReportSnapshot.
+    #[serde(skip_serializing)]
     pub messages: Vec<Message>,
 
     /// MustSync indicates whether the HardState and Entries must be synchronously
@@ -179,10 +184,12 @@ impl Ready {
 /// RawNode is a thread-unsafe Node.
 /// The methods of this struct correspond to the methods of Node and are described
 /// more fully there.
+#[derive(Serialize, SerDebug)]
 pub struct RawNode<T: Storage> {
     /// The internal raft state.
     pub raft: Raft<T>,
     prev_ss: SoftState,
+    #[serde(skip_serializing)]
     prev_hs: HardState,
 }
 
