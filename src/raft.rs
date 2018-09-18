@@ -178,7 +178,7 @@ pub struct Raft<T: Storage> {
     max_election_timeout: usize,
 
     /// Tag is only used for logging
-    tag: String,
+    pub tag: String,
 }
 
 trait AssertSend: Send {}
