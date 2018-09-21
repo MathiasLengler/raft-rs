@@ -17,7 +17,7 @@ failpoint = ["fail"]
 
 [dependencies]
 log = ">0.2"
-protobuf = "2.0.4"
+protobuf = "2.0.5"
 quick-error = "1.2.2"
 rand = "0.5.4"
 fxhash = "0.2.1"
