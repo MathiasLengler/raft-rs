@@ -107,6 +107,16 @@ impl Default for MemStorageCore {
 }
 
 impl MemStorageCore {
+    /// Setter for external testing
+    pub fn set_entries(&mut self, entries: &[Entry]) {
+        self.entries = entries.into();
+    }
+
+    /// Getter for external testing
+    pub fn clone_entries(&self) -> Vec<Entry> {
+        self.entries.clone()
+    }
+
     /// Saves the current HardState.
     pub fn set_hardstate(&mut self, hs: HardState) {
         self.hard_state = hs;
